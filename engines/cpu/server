@@ -1,0 +1,46 @@
+#!/bin/bash -eu
+
+port="$(modelctl get http.port)"
+host="$(modelctl get http.host)"
+sleep_idle_seconds="$(modelctl get sleep-idle-seconds)"
+min_context_size="$(modelctl get min-context-size)"
+ubatch_size="$(modelctl get ubatch-size)"
+model_name=$("$SNAP_NAME" model --format=json | jq -r '.name')
+
+extra_args=()
+
+verbose="$(modelctl get verbose)"
+if [ "${verbose}" = "true" ]; then
+  extra_args+=(--verbose)
+fi
+
+set -x
+# This is an embedding model, not a chat model:
+# --embedding restricts llama-server to the embedding use case (/v1/embeddings).
+# --pooling last is the pooling Qwen3-Embedding was trained with (last-token /
+#   EOS pooling). The official GGUFs embed llama.pooling_type=LAST, so the flag
+#   is technically redundant, but it is passed explicitly (as the vendor docs
+#   do) to be robust against re-quantized GGUFs that drop the metadata.
+# --ubatch-size: embedding is prompt-processing-bound. Configurable via
+#   `ubatch-size` (default 512, measured fastest on CPU; the vendor's 8192
+#   suits GPU/throughput boxes -- see engines/*/engine.yaml). In embedding
+#   mode llama-server clamps n_batch to n_ubatch, so one knob controls both.
+# --no-webui: the snap ships no web UI; embeddings have no chat interface.
+# No --jinja/--min-p/reasoning flags: there is no generation, sampling or chat
+#   template involved.
+# No --threads on purpose: llama.cpp defaults to the number of physical cores,
+#   which measures faster than --threads $(nproc) on SMT machines.
+exec llama-server \
+  --model "$MODEL_FILE" \
+  --alias "$model_name" \
+  --port "$port" \
+  --host "$host" \
+  --embedding \
+  --pooling last \
+  --ubatch-size "$ubatch_size" \
+  --no-warmup \
+  --sleep-idle-seconds "$sleep_idle_seconds" \
+  --fit-ctx "$min_context_size" \
+  --no-webui \
+  "${extra_args[@]}" \
+  "$@"

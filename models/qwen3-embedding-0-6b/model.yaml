@@ -1,0 +1,22 @@
+# Default variant (0.6B, Q8_0). The name carries no quantization suffix on
+# purpose: the official GGUF repo only publishes Q8_0 and F16 for the 0.6B
+# size, and Q8_0 is near-lossless at this scale. It is what the OpenAI API
+# serves as the model id (see engines/*/server, --alias).
+# Additional sizes: qwen3-embedding-4b, qwen3-embedding-8b.
+name: qwen3-embedding-0-6b
+description: Qwen3-Embedding-0.6B, a fast multilingual text embedding model for retrieval, RAG and semantic search (1024-dim, Q8_0 quantization)
+model-card-url: https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF
+format: GGUF
+quantization: Q8_0
+
+disk-size: 610M
+
+capabilities:
+  - text-embedding
+
+components:
+  - model-0-6b-q8-0-gguf
+
+environment:
+  # Single-file GGUF (no sharding), so no layout/symlinks are needed.
+  - MODEL_FILE=$SNAP_COMPONENTS/model-0-6b-q8-0-gguf/Qwen3-Embedding-0.6B-Q8_0.gguf

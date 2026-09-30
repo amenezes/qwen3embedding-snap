@@ -1,0 +1,36 @@
+name: cpu
+summary: Optimized for various CPUs
+description: |
+  This engine uses llama.cpp in embedding mode.
+
+  It is optimized for both amd64 and arm64 CPU architectures, for a wide range
+  of architecture variants.
+vendor: amenezes.net
+
+devices:
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+
+runtime: llamacpp
+
+model:
+  default: qwen3-embedding-0-6b
+  options:
+    - qwen3-embedding-0-6b
+    - qwen3-embedding-4b
+    - qwen3-embedding-8b
+
+configurations:
+  sleep-idle-seconds: 600
+  min-context-size: 4096
+  # Physical batch size for prompt processing (llama-server --ubatch-size).
+  # Measured on CPU (Ryzen 9 3900X, load-gated, ai/03 §3): 512 -- the llama.cpp
+  # default -- was the fastest AND lightest option on every profile (batched
+  # short docs and long docs), beating 2048/8192 by ~1.9x with ~3.4 GB less
+  # RSS; the vendor's "-ub 8192" recommendation targets GPU/throughput boxes.
+  # Raise it there with:
+  #   sudo qwen3-embedding set ubatch-size=8192 && sudo snap restart qwen3-embedding
+  ubatch-size: 512

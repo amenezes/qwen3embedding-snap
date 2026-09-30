@@ -1,0 +1,17 @@
+name: qwen3-embedding-4b
+description: Qwen3-Embedding-4B, a high-quality multilingual text embedding model for retrieval, RAG and semantic search (2560-dim, Q8_0 quantization)
+model-card-url: https://huggingface.co/Qwen/Qwen3-Embedding-4B-GGUF
+format: GGUF
+quantization: Q8_0
+
+disk-size: 4082M
+
+capabilities:
+  - text-embedding
+
+components:
+  - model-4b-q8-0-gguf
+
+environment:
+  # Single-file GGUF (no sharding), so no layout/symlinks are needed.
+  - MODEL_FILE=$SNAP_COMPONENTS/model-4b-q8-0-gguf/Qwen3-Embedding-4B-Q8_0.gguf

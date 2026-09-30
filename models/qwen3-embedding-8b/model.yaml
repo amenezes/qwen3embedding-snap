@@ -1,0 +1,21 @@
+# Q4_K_M on purpose: the official Q8_0 build of the 8B model (8.05 GB) exceeds
+# the Snap Store's 5 GiB per-component limit and would need sharding; Q4_K_M
+# (4.68 GB) is the largest official quantization that ships as a single
+# component. See ai/07-decisoes.md (DEC-03).
+name: qwen3-embedding-8b
+description: Qwen3-Embedding-8B, the top-quality multilingual text embedding model, No.1 on MTEB multilingual at release (4096-dim, Q4_K_M quantization)
+model-card-url: https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF
+format: GGUF
+quantization: Q4_K_M
+
+disk-size: 4461M
+
+capabilities:
+  - text-embedding
+
+components:
+  - model-8b-q4-k-m-gguf
+
+environment:
+  # Single-file GGUF (no sharding), so no layout/symlinks are needed.
+  - MODEL_FILE=$SNAP_COMPONENTS/model-8b-q4-k-m-gguf/Qwen3-Embedding-8B-Q4_K_M.gguf
