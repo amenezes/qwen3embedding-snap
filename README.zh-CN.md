@@ -21,6 +21,7 @@ API 提供服务。
 
 * cpu：针对 x64 与 ARM（armv8、armv9）CPU 优化
 * nvidia-gpu：CUDA GPU 加速
+* amd-gpu：AMD GPU 的 ROCm 加速
 
 系统会根据可用硬件自动选择最合适的引擎。
 
@@ -38,6 +39,8 @@ curl -s http://127.0.0.1:8362/v1/embeddings \
 
 > [!TIP]
 > 部分加速器需要额外的[驱动](https://documentation.ubuntu.com/inference-snaps/how-to/setup/drivers/)才能与本 snap 配合使用。
+> `amd-gpu` 引擎使用内核自带的 `amdgpu` 驱动（KFD）；ROCm 用户态库已打包在本
+> snap 中，主机无需安装 ROCm。
 
 ## 模型规格
 
@@ -76,7 +79,7 @@ sudo snap restart qwen3-embedding
 llama.cpp 会尽量把层卸载到 GPU，支持部分卸载。
 
 安装 0.6B 后磁盘占用约 1.0 GB（snap + llama.cpp 组件 + 权重）；若选择 nvidia-gpu 引擎再
-加约 1.1 GB（约 730 MB 下载）。
+加约 1.1 GB（约 730 MB 下载）；若选择 amd-gpu 引擎，再加约 3.8 GB（约 1.1 GB 下载）。
 
 ## 使用指南
 
@@ -180,10 +183,12 @@ sudo snap restart qwen3-embedding
 * **归一化：** 向量在服务端做 L2 归一化（llama.cpp `--embd-normalize` 默认值），与模型预期
   的余弦相似度用法一致。
 * **模型许可证：** Apache-2.0（通义千问团队，阿里巴巴集团）。打包代码为 GPL-3.0。
-* **引擎选择：** 只要 PCI 总线上存在 NVIDIA GPU，就会选择 `nvidia-gpu` 引擎，即使驱动不可
-  用。此时 CUDA 初始化失败，llama.cpp 回退到 CPU 后端；运行
-  `sudo qwen3-embedding use-engine cpu` 可切回并释放约 1.1 GB 组件。选择在安装时进行，需要
-  `hardware-observe` 接口；若未获自动连接，请手动连接后重新选择：
+* **引擎选择：** 只要 PCI 总线上存在对应厂商的 GPU，就会选择 `nvidia-gpu` 或
+  `amd-gpu` 引擎，即使驱动不可用。此时后端初始化失败，llama.cpp 回退到 CPU 后端；运行
+  `sudo qwen3-embedding use-engine cpu` 可切回并释放该引擎组件（NVIDIA 约 1.1 GB，
+  AMD 约 3.8 GB）。AMD 引擎仅匹配内置 ROCm 构建支持的微架构
+  （gfx1010–gfx1201，含 RX 9070 XT）；较旧的 AMD GPU 会选择 cpu 引擎。选择在安装时进行，
+  需要 `hardware-observe` 接口；若未获自动连接，请手动连接后重新选择：
   ```shell
   sudo snap connect qwen3-embedding:hardware-observe
   sudo qwen3-embedding use-engine --auto
