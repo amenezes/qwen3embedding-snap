@@ -211,6 +211,16 @@ típicos de RAG em CPU.
   sudo snap connect qwen3-embedding:hardware-observe
   sudo qwen3-embedding use-engine --auto
   ```
+* **O motor AMD precisa de `process-control`:** o runtime ROCm fixa suas threads de trabalho com
+  `sched_setaffinity`, e a política seccomp padrão do snapd só permite essa chamada para o pid 0.
+  Sem o plugue, o HSA falha ao inicializar, o llama.cpp registra `no ROCm-capable device is
+  detected` e roda na CPU enquanto o motor continua aparecendo como `amd-gpu`. A interface não é
+  auto-conectada, então conecte-a uma vez após a instalação — e peça a auto-conexão antes de
+  publicar na loja:
+  ```shell
+  sudo snap connect qwen3-embedding:process-control
+  sudo snap restart qwen3-embedding.server
+  ```
 * **Provider:** o snap exporta um slot de conteúdo `inference-provider`, para que outro snap
   possa consumir este endpoint em vez de rodar o próprio modelo.
 * **API local:** o endpoint não tem autenticação e permite requisições de outras origens. Ele
