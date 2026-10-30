@@ -162,9 +162,12 @@ sudo qwen3-embedding set ubatch-size=8192
 sudo snap restart qwen3-embedding
 ```
 
-`ubatch-size=8192` é o valor recomendado pelo fabricante para throughput máximo de embedding;
-custa um *compute buffer* maior (RAM/VRAM). O padrão 2048 é o ponto ideal medido para chunks
-típicos de RAG em CPU.
+`ubatch-size=8192` é o valor recomendado pelo fabricante para throughput máximo de embedding.
+Medições com *load gating* em CPU (ver `ai/`) fizeram de **512**, o padrão do llama.cpp, a
+opção mais rápida e mais leve em todos os perfis de documento deste projeto; ubatches maiores
+custam um *compute buffer* maior (RAM/VRAM) sem ganho neste hardware. Em GPU, ou em máquinas
+orientadas a throughput, o `ubatch-size=8192` recomendado pelo fabricante pode ganhar: meça
+antes de mudar.
 
 ## Recursos
 
@@ -232,7 +235,7 @@ típicos de RAG em CPU.
 
 Clone o repositório:
 ```shell
-git clone <este-repo>
+git clone https://github.com/amenezes/qwen3embedding-snap
 ```
 
 Inicialize o ambiente de desenvolvimento:
@@ -255,6 +258,14 @@ Compile e instale o snap:
 ```shell
 make build       # requer init-all: os três GGUFs viram componentes
 make install
+```
+
+`make install` instala o snap e todos os `.comp` do diretório, reconecta as interfaces e
+preserva o engine já selecionado. Para trocar o engine numa instalação nova — ou depois de
+`./dev/install.sh --clean`, que apaga a configuração — passe `--engine`:
+
+```shell
+./dev/install.sh --engine=amd-gpu
 ```
 
 Valide o servidor em execução com a bateria E2E de embeddings:

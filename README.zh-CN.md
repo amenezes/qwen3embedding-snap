@@ -212,7 +212,7 @@ sudo snap restart qwen3-embedding
 
 克隆仓库：
 ```shell
-git clone <本仓库>
+git clone https://github.com/amenezes/qwen3embedding-snap
 ```
 
 初始化开发环境：
@@ -235,6 +235,13 @@ lxd init --auto --storage-backend=dir
 ```shell
 make build       # 需要 init-all：三个 GGUF 将作为组件打包
 make install
+```
+
+`make install` 安装 snap 和目录下所有 `.comp`，重新连接各接口，并保留已选定的引擎。若要在全新
+安装中更换引擎，或在执行 `./dev/install.sh --clean`（会清除配置）之后更换，请传入 `--engine`：
+
+```shell
+./dev/install.sh --engine=amd-gpu
 ```
 
 使用嵌入 E2E 测试验证运行中的服务：

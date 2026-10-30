@@ -230,7 +230,7 @@ changing.
 
 Clone the repo:
 ```shell
-git clone <this-repo>
+git clone https://github.com/amenezes/qwen3embedding-snap
 ```
 
 Initialize the development environment:
@@ -253,6 +253,14 @@ Build and install snap:
 ```shell
 make build       # needs init-all: the three GGUFs become components
 make install
+```
+
+`make install` installs the snap and every `.comp` in the directory, reconnects the interfaces
+and preserves the engine already selected. To change the engine on a fresh installation — or
+after `./dev/install.sh --clean`, which wipes the configuration — pass `--engine`:
+
+```shell
+./dev/install.sh --engine=amd-gpu
 ```
 
 Validate the running server with the embeddings E2E battery:
