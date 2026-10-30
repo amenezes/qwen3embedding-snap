@@ -277,31 +277,3 @@ make embed-test MODEL=qwen3-embedding-4b DIM=2560
 Para usar cópias locais dos pesos, coloque-as em `components/model-*-gguf/` e rode
 `make verify-model` / `make verify-extra-models`; as variáveis `GGUF_*` do `Makefile` são
 sobrescrevíveis para espelhos internos.
-
-## Publicação na Snap Store
-
-Dois pedidos do lado da loja são pré-requisitos e ambos demoram, então abra-os cedo:
-
-* **Acesso a upload de componentes** — os pesos e o runtime llama.cpp são distribuídos como
-  [components](https://snapcraft.io/docs/explanation/how-snaps-work/snap-components/) e o upload
-  de componentes é limitado a contas na allow-list da loja. Peça no
-  [fórum do Snapcraft](https://forum.snapcraft.io/c/store-requests/).
-* **Auto-conexão de `hardware-observe`** — a interface não é auto-conectada por padrão, então uma
-  instalação pela loja não detecta o hardware no `use-engine --auto` até o pedido ser concedido
-  (veja o
-  [processo](https://snapcraft.io/docs/reference/administration/process-for-aliases-auto-connections-and-tracks/)).
-
-O primeiro upload também exige um nome registrado e um repositório que exista de fato: a página
-da loja liga `website`, `source-code`, `issues` e `contact` do `snap/snapcraft.yaml`.
-
-```shell
-snapcraft login
-snapcraft register qwen3-embedding
-make build
-./dev/upload.sh latest/edge   # snapcraft upload <snap> --component ... --release=latest/edge
-```
-
-`.github/workflows/cicd.yaml` publica em `latest/edge` a cada push na `main` assim que o secret
-`SNAPCRAFT_STORE_CREDENTIALS` (saída de `snapcraft export-login`) estiver configurado. Note que
-o runner de CI precisa de ~25 GB livres: o `make init-all` baixa os três GGUFs porque o build os
-organiza em componentes.

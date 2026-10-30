@@ -252,30 +252,3 @@ make embed-test MODEL=qwen3-embedding-4b DIM=2560
 
 如需使用本地权重副本，请放置到 `components/model-*-gguf/` 并运行 `make verify-model` /
 `make verify-extra-models`；`Makefile` 中的 `GGUF_*` 变量可覆盖以指向内部镜像。
-
-## 发布到 Snap Store
-
-有两个商店侧申请是前置条件，且都需要时间，请尽早提交：
-
-* **组件上传权限** —— 权重与 llama.cpp 运行时以
-  [components](https://snapcraft.io/docs/explanation/how-snaps-work/snap-components/) 形式
-  分发，组件上传仅限商店白名单账户。请在
-  [Snapcraft 论坛](https://forum.snapcraft.io/c/store-requests/)申请。
-* **`hardware-observe` 自动连接** —— 该接口默认不自动连接，商店安装时 `use-engine --auto`
-  无法检测硬件，直到申请获批（参见
-  [流程](https://snapcraft.io/docs/reference/administration/process-for-aliases-auto-connections-and-tracks/)）。
-
-首次上传还需要已注册名称与真实存在的仓库：商店页面会链接 `snap/snapcraft.yaml` 中的
-`website`、`source-code`、`issues` 与 `contact`。
-
-```shell
-snapcraft login
-snapcraft register qwen3-embedding
-make build
-./dev/upload.sh latest/edge   # snapcraft upload <snap> --component ... --release=latest/edge
-```
-
-配置好 `SNAPCRAFT_STORE_CREDENTIALS` secret（`snapcraft export-login` 的输出）后，
-`.github/workflows/cicd.yaml` 会在每次 push 到 `main` 时发布到 `latest/edge`。注意 CI
-runner 需要约 25 GB 空闲磁盘：`make init-all` 会下载全部三个 GGUF，因为构建会将它们组织
-为组件。

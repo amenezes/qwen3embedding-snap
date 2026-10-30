@@ -272,31 +272,3 @@ make embed-test MODEL=qwen3-embedding-4b DIM=2560
 To use local weight copies, place them under `components/model-*-gguf/` and run
 `make verify-model` / `make verify-extra-models`; the `GGUF_*` variables in the `Makefile` are
 overridable for internal mirrors.
-
-## Publishing to the Snap Store
-
-Two store-side requests are prerequisites, and both take time, so open them early:
-
-* **Component upload access** -- the weights and the llama.cpp runtime ship as
-  [components](https://snapcraft.io/docs/explanation/how-snaps-work/snap-components/), and
-  uploading components is limited to accounts on the store's allow-list. Request it on the
-  [Snapcraft forum](https://forum.snapcraft.io/c/store-requests/).
-* **Auto-connection of `hardware-observe`** -- the interface is not auto-connected by default, so
-  a store install cannot detect the hardware during `use-engine --auto` until the request is
-  granted (see the
-  [process](https://snapcraft.io/docs/reference/administration/process-for-aliases-auto-connections-and-tracks/)).
-
-The first upload also requires a registered name, and a repository that actually exists: the store
-listing links to `website`, `source-code`, `issues` and `contact` from `snap/snapcraft.yaml`.
-
-```shell
-snapcraft login
-snapcraft register qwen3-embedding
-make build
-./dev/upload.sh latest/edge   # snapcraft upload <snap> --component ... --release=latest/edge
-```
-
-`.github/workflows/cicd.yaml` publishes to `latest/edge` on every push to `main` once the
-`SNAPCRAFT_STORE_CREDENTIALS` secret (the output of `snapcraft export-login`) is configured.
-Note the CI runner needs ~25 GB free disk: `make init-all` fetches all three GGUFs because the
-build organizes them into components.
